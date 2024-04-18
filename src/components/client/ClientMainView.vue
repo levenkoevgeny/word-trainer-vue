@@ -13,9 +13,9 @@
                 style="cursor: pointer">
               <td class="fs-6" @click="navigateToDict(dict.id)"> {{ dict.dictionary_name }}</td>
               <td class="fs-6">
-                <font-awesome-icon :icon="['fas', 'person-running']" @click="navigateToSpeedTraining(dict.id)"/>&nbsp;&nbsp;&nbsp;&nbsp;
-                <font-awesome-icon :icon="['fas', 'pen-to-square']" @click="navigateToSpellingTraining(dict.id)" />&nbsp;&nbsp;&nbsp;&nbsp;
-                <font-awesome-icon :icon="['fas', 'trash-can']" @click="deleteDictionary(dict.id)" />
+                <font-awesome-icon :icon="['fas', 'person-running']" @click="navigateToSpeedTraining(dict.id)" title="Speed running"/>&nbsp;&nbsp;&nbsp;&nbsp;
+<!--                <font-awesome-icon :icon="['fas', 'pen-to-square']" @click="navigateToSpellingTraining(dict.id)" />&nbsp;&nbsp;&nbsp;&nbsp;-->
+                <font-awesome-icon :icon="['fas', 'trash-can']" @click="deleteDictionary(dict.id)" title="Delete dictionary" />
               </td>
             </tr>
             </tbody>
