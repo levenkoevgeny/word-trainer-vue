@@ -1,0 +1,5 @@
+export { default as ClientMainView } from "./ClientMainView.vue"
+export { default as WordsView } from "./WordsView.vue"
+export { default as ClientDefault } from "./ClientDefault.vue"
+export { default as SpeedTrainingView } from "./SpeedTrainingView.vue"
+export { default as SpellingTrainerView } from "./SpellingTrainerView.vue"
