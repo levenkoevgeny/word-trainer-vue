@@ -1,5 +1,4 @@
 <template>
-
   <div class="container">
     <h1 class="my-3" style="font-size: 60px" v-if="currentDictionary">{{ currentDictionary.dictionary_name }}</h1>
     <div class="d-flex justify-content-center">
@@ -12,7 +11,6 @@
     </div>
     <div class="d-flex align-items-center justify-content-center" v-if="wordsList.results.length > 0"
          style="font-size: 30px;">
-
       <button v-if="!isTrainRunning" type="button" class="btn btn-light btn-lg" @click="startTrain" style="padding: 1rem 3rem; font-size: 3rem">
         <font-awesome-icon icon="fa-solid fa-play" />
       </button>
@@ -107,7 +105,7 @@ export default {
     startTrain() {
       this.isTrainRunning = true
       clearInterval(this.intervalId)
-      this.intervalId = setInterval(() => this.getRandomWord(), (this.maxIntervalSpeed) * 1000 - this.intervalSpeed * 1000)
+      this.intervalId = setInterval(() => this.getRandomWord(), (this.maxIntervalSpeed + 1) * 1000 - this.intervalSpeed * 1000)
     },
     stopTrain() {
       this.isTrainRunning = false

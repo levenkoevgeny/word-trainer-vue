@@ -11,6 +11,9 @@ export const wordsAPI = {
       authHeaders(token),
     )
   },
+  async updateList(url, token) {
+    return axios.get(url, authHeaders(token))
+  },
   async getItemData(token, itemId) {
     return axios.get(
       `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/${base_url}/${itemId}`,

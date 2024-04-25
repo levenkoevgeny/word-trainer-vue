@@ -1,8 +1,90 @@
 <template>
-
-
   <!--  <div v-if="isLoading" class="fs-4">...Loading</div>-->
 
+  <div
+    class="modal fade"
+    id="updateWordModal"
+    tabindex="-1"
+    aria-labelledby="exampleModalLabel"
+    aria-hidden="true"
+    ref="wordUpdate"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form @submit.prevent="updateWord">
+          <div class="modal-header">
+            <h5 class="modal-title">Редактирование</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col-4">
+                  <div class="mb-3">
+                    <label class="form-label">Foreign word</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      v-model="currentWordForUpdate.word_eng"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="mb-3">
+                    <label class="form-label">Native word</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      v-model="currentWordForUpdate.word_rus"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="mb-3">
+                    <label class="form-label">Dictionary</label>
+                    <select
+                      class="form-select"
+                      v-model="currentWordForUpdate.dictionary"
+                      required
+                    >
+                      <option selected value="">--------</option>
+                      <option
+                        v-for="dictionary in orderedDictionaries"
+                        :key="dictionary.id"
+                        :value="dictionary.id"
+                      >
+                        {{ dictionary.dictionary_name }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+              ref="updateWordModalCloseButton"
+            >
+              Close
+            </button>
+            <button type="submit" class="btn btn-primary" :disabled="isLoading">
+              Save
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
   <div>
     <div>
       <h3 class="fst-italic fs-1">{{ currentDictionary.dictionary_name }}</h3>
@@ -24,7 +106,7 @@
       </div>
       <div class="col-lg-4">
         <div class="" style="width: 100%;height: 100%">
-          <button type="button" class="btn btn-dark pb-2" style="width: 100%;height: 100%" @click="addNewWord">
+          <button type="button" class="btn btn-dark pb-2" style="width: 100%;height: 100%" @click="addNewWord" :disabled="isNewWordValidated">
             <span class="fw-light"><font-awesome-icon :icon="['fas', 'plus']" /></span>
           </button>
         </div>
@@ -33,6 +115,8 @@
 
     <div v-if="isLoading" class="fs-5 mt-3">...Loading</div>
     <div class="mt-3" v-else>
+      <PaginatorView :update-paginator="updatePaginator" :words-list-previous="wordsList.previous"
+                     :words-list-next="wordsList.next" v-if="wordsList.previous || wordsList.next" />
       <table class="table table-hover fw-light">
         <tbody>
         <tr v-if="wordsList.results.length">
@@ -45,9 +129,18 @@
               </label>
             </div>
           </td>
-          <td></td>
+          <td class="text-danger" v-if="checkedForDeleteCount > 0">
+            <nobr>
+              <font-awesome-icon
+                :icon="['fas', 'trash-can']"
+                class="text-danger"
+                @click="deleteCheckedWordsHandler" />
+              <span class="fw-bolder"> ({{ checkedForDeleteCount }})</span>
+            </nobr>
+          </td>
+          <td v-else></td>
         </tr>
-        <tr v-for="word in orderedWords" :key="word.id" style="cursor: pointer" @dblclick="console.log('click')">
+        <tr v-for="word in orderedWords" :key="word.id" style="cursor: pointer" @dblclick="showModalForUpdate(word.id)">
           <td style="width: 30px;">
             <div class="form-check">
               <input class="form-check-input" type="checkbox" value="" v-model="word.checked_val" @click.stop>
@@ -61,6 +154,8 @@
         </tr>
         </tbody>
       </table>
+      <PaginatorView :update-paginator="updatePaginator" :words-list-previous="wordsList.previous"
+                     :words-list-next="wordsList.next" v-if="wordsList.previous || wordsList.next" />
     </div>
   </div>
 
@@ -73,6 +168,8 @@ import { wordsAPI } from "@/api/client/wordsAPI"
 import { dictionariesAPI } from "@/api/client/dictionariesAPI"
 
 import Spinner from "@/components/common/Spinner"
+import PaginatorView from "@/components/client/PaginatorView.vue"
+
 import debounce from "lodash.debounce"
 
 import {
@@ -83,11 +180,12 @@ import {
 
 export default {
   name: "WordsView",
-  components: { Spinner },
+  components: { Spinner, PaginatorView },
 
   data() {
     return {
-      wordsList: { results: [] },
+      wordsList: { results: [], previous: null, next: null },
+      dictionariesList: { results: [] },
       currentDictionary: {},
       isLoading: true,
       isError: false,
@@ -99,6 +197,11 @@ export default {
         word_eng: "",
         dictionary: "",
         limit: ""
+      },
+      currentWordForUpdate: {
+        word_rus: "",
+        word_eng: "",
+        dictionary: ""
       }
     }
   },
@@ -124,10 +227,15 @@ export default {
       this.isLoading = true
       this.isError = false
       try {
-        const dictionaryResponse = await dictionariesAPI.getItemData(
+        const currentDictionaryResponse = await dictionariesAPI.getItemData(
           this.userToken, this.searchForm.dictionary
         )
-        this.currentDictionary = await dictionaryResponse.data
+        this.currentDictionary = await currentDictionaryResponse.data
+
+        const dictionariesResponse = await dictionariesAPI.getItemsList(
+          this.userToken
+        )
+        this.dictionariesList = await dictionariesResponse.data
 
         const wordsResponse = await wordsAPI.getItemsList(
           this.userToken, this.searchForm
@@ -148,7 +256,32 @@ export default {
       } finally {
       }
     },
+    async updateWord() {
+      try {
+        await wordsAPI.updateItem(this.userToken, this.currentWordForUpdate)
+        await this.loadData()
+        this.$refs.updateWordModalCloseButton.click()
+      } catch (e) {
+        this.isError = true
+      } finally {
+      }
+    },
+    async showModalForUpdate(wordId) {
+      this.isError = false
+      try {
+        const response = await wordsAPI.getItemData(this.userToken, wordId)
+        this.currentWordForUpdate = await response.data
+        let updateModal = this.$refs.wordUpdate
+        let myModal = new bootstrap.Modal(updateModal, {
+          keyboard: false
+        })
+        myModal.show()
+      } catch (error) {
+        this.isError = true
+      } finally {
 
+      }
+    },
     async deleteWord(word_id) {
       try {
         await wordsAPI.deleteItem(this.userToken, word_id)
@@ -158,6 +291,31 @@ export default {
       } finally {
       }
     },
+
+
+    deleteCheckedWordsHandler() {
+      this.isLoading = true
+      this.isError = false
+      let requestIds = []
+      this.wordsList.results.map((word) => {
+        if (word.checked_val) {
+          requestIds.push(word.id)
+        }
+        return
+      })
+      let requests = requestIds.map((id) =>
+        wordsAPI.deleteItem(this.userToken, id)
+      )
+      Promise.all(requests)
+        .then(async () => {
+          await this.loadData()
+        })
+        .catch(() => (this.isError = true))
+        .finally(() => {
+          this.isLoading = false
+        })
+    },
+
 
     checkAllHandler(e) {
       if (e.target.checked) {
@@ -176,7 +334,17 @@ export default {
         )
       }
     },
-
+    async updatePaginator(url) {
+      this.isLoading = true
+      try {
+        const response = await wordsAPI.updateList(url, this.userToken)
+        this.wordsList = await response.data
+      } catch (error) {
+        this.isError = true
+      } finally {
+        this.isLoading = false
+      }
+    },
     debouncedSearch: debounce(async function() {
       await this.loadData()
     }, 500),
@@ -195,6 +363,21 @@ export default {
     }),
     orderedWords() {
       return this.wordsList.results
+    },
+    orderedDictionaries() {
+      return this.dictionariesList.results
+    },
+    checkedForDeleteCount() {
+      let counter = 0
+      this.wordsList.results.map((word) => {
+        if (word.checked_val) {
+          counter++
+        }
+      })
+      return counter
+    },
+    isNewWordValidated() {
+      return this.searchForm.word_rus === '' || this.searchForm.word_eng === ''
     }
   },
   watch:

@@ -6,6 +6,10 @@
     class="d-flex justify-content-center align-items-center container-fluid"
     style="background-color: #f5f5f5; height: 100vh"
   >
+
+   <button @click="googleLogin()">
+     Google
+   </button>
     <main class="form-signin">
       <form @submit="submitHandler">
         <h1 class="h3 mb-3 fw-normal">Авторизуйтесь</h1>
@@ -65,6 +69,9 @@ export default {
           this.$router.replace(this.$route.query.redirect || "/")
         })
     },
+    async googleLogin(){
+      window.location.href = "https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?client_id=203187743059-nogl8fo77e3i3uk118emqgacr6jj5kra.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost%3A8080/google/&scope=email%20profile&response_type=code&state=37wkk2xQw0YGtTGk&access_type=online&code_challenge_method=S256&code_challenge=ll2Xu-WGD23WsGgtVeNddhXtAhhphCryS8x1H5pKuFU&service=lso&o2v=2&theme=mn&ddm=0&flowName=GeneralOAuthFlow"
+    }
   },
 }
 </script>

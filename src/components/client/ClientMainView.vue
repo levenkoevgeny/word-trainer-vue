@@ -4,18 +4,23 @@
       <div class="col-md-3 pt-3">
         <div>
           <div class="form-floating mb-3">
-            <input type="text" class="form-control" placeholder="name" v-model="searchForm.dictionary_name" @keyup.enter="addNewDictionary">
+            <input type="text" class="form-control" placeholder="name" v-model="searchForm.dictionary_name"
+                   @keyup.enter="addNewDictionary">
             <label for="floatingInput" class="fw-light">Dictionary name</label>
           </div>
           <table class="table table-borderless table-hover">
             <tbody>
             <tr v-for="dict in orderedDictionaries" :key="dict.id"
                 style="cursor: pointer">
-              <td class="fs-6" @click="navigateToDict(dict.id)"> {{ dict.dictionary_name }}</td>
+              <td class="fs-6" @click="navigateToDict(dict.id)"><span class="fw-bolder"> {{ dict.dictionary_name }}</span>
+               ({{ dict.get_words_count }})
+              </td>
               <td class="fs-6">
-                <font-awesome-icon :icon="['fas', 'person-running']" @click="navigateToSpeedTraining(dict.id)" title="Speed running"/>&nbsp;&nbsp;&nbsp;&nbsp;
-<!--                <font-awesome-icon :icon="['fas', 'pen-to-square']" @click="navigateToSpellingTraining(dict.id)" />&nbsp;&nbsp;&nbsp;&nbsp;-->
-                <font-awesome-icon :icon="['fas', 'trash-can']" @click="deleteDictionary(dict.id)" title="Delete dictionary" />
+                <font-awesome-icon :icon="['fas', 'person-running']" @click="navigateToSpeedTraining(dict.id)"
+                                   title="Speed running" />&nbsp;&nbsp;&nbsp;&nbsp;
+                <!--                <font-awesome-icon :icon="['fas', 'pen-to-square']" @click="navigateToSpellingTraining(dict.id)" />&nbsp;&nbsp;&nbsp;&nbsp;-->
+                <font-awesome-icon :icon="['fas', 'trash-can']" @click="deleteDictionary(dict.id)"
+                                   title="Delete dictionary" />
               </td>
             </tr>
             </tbody>
@@ -55,8 +60,8 @@ export default {
   data() {
     return {
       dictionariesList: { results: [] },
-      searchForm:{
-        dictionary_name: "",
+      searchForm: {
+        dictionary_name: ""
       },
       isLoading: true,
       isError: false,
@@ -89,18 +94,21 @@ export default {
       try {
         await dictionariesAPI.deleteItem(this.userToken, dict_id)
         await this.loadData()
-        window.location.href = '/dictionaries'
+        window.location.href = "/dictionaries"
       } catch (e) {
         this.isError = true
       } finally {
       }
     },
-    async addNewDictionary(){
+    async addNewDictionary() {
       try {
-        const newDictResponse = await dictionariesAPI.addItem(this.userToken, {...this.searchForm, owner: this.userData.id})
+        const newDictResponse = await dictionariesAPI.addItem(this.userToken, {
+          ...this.searchForm,
+          owner: this.userData.id
+        })
         const newDict = await newDictResponse.data
         await this.loadData()
-        this.$router.push({name: 'words' , params: { id: newDict.id }})
+        this.$router.push({ name: "words", params: { id: newDict.id } })
       } catch (e) {
         this.isError = true
       } finally {

@@ -6,6 +6,7 @@ import {
   ServerErrorView,
 } from "@/components/errors"
 import { ClientMainView, WordsView, ClientDefault, SpeedTrainingView, SpellingTrainerView } from "@/components/client"
+import GoogleAuth from "@/components/auth/GoogleAuth.vue"
 
 import { LoginView } from "@/components/auth"
 import store from "@/store"
@@ -42,18 +43,24 @@ const routes = [
     path: "/speed/:id",
     name: "speed",
     component: SpeedTrainingView,
-    meta: { requiresAuth: false },
+    meta: { requiresAuth: true },
   },
   {
     path: "/spelling/:id",
     name: "spelling",
     component: SpellingTrainerView,
-    meta: { requiresAuth: false },
+    meta: { requiresAuth: true },
   },
   {
     path: "/network-error",
     name: "network-error",
     component: NetworkErrorView,
+    meta: { requiresAuth: false },
+  },
+  {
+    path: "/google",
+    name: "google",
+    component: GoogleAuth,
     meta: { requiresAuth: false },
   },
   {
