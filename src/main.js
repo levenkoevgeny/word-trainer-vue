@@ -13,7 +13,8 @@ import { faPenToSquare } from "@fortawesome/free-solid-svg-icons"
 import { faPersonRunning } from "@fortawesome/free-solid-svg-icons"
 import { faPlay } from "@fortawesome/free-solid-svg-icons"
 import { faPause } from "@fortawesome/free-solid-svg-icons"
-
+import { faPencilSquare } from "@fortawesome/free-solid-svg-icons"
+import { faGoogle } from "@fortawesome/free-brands-svg-icons"
 
 library.add(faDumbbell)
 library.add(faPlus)
@@ -22,6 +23,8 @@ library.add(faPenToSquare)
 library.add(faPersonRunning)
 library.add(faPlay)
 library.add(faPause)
+library.add(faPencilSquare)
+library.add(faGoogle)
 
 
 createApp(App)

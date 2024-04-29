@@ -1,39 +1,52 @@
 <template>
   <div class="container">
     <div class="row">
-      <div class="col-md-3 pt-3">
-        <div>
-          <div class="form-floating mb-3">
-            <input type="text" class="form-control" placeholder="name" v-model="searchForm.dictionary_name"
-                   @keyup.enter="addNewDictionary">
-            <label for="floatingInput" class="fw-light">Dictionary name</label>
+      <div class="col-xl-4 pt-3">
+        <nav class="navbar navbar-expand-xl navbar navbar-light">
+          <button class="navbar-toggler"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#sideMenu"
+                  aria-controls="navbarSupportedContent"
+                  aria-expanded="false"
+                  aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <div id="sideMenu" class="collapse navbar-collapse mt-2">
+            <div class="w-100">
+              <div class="form-floating mb-3" style="width: 100%!important;">
+                <input type="text" class="form-control" placeholder="name" v-model="searchForm.dictionary_name"
+                       @keyup.enter="addNewDictionary" style="width: 100%!important;">
+                <label for="floatingInput" class="fw-light">Dictionary name (press enter to add new one)</label>
+              </div>
+              <table class="table table-borderless table-hover">
+                <tbody>
+                <tr v-for="dict in orderedDictionaries" :key="dict.id"
+                    style="cursor: pointer">
+                  <td class="fs-6" @click="navigateToDict(dict.id)"><span class="fw-bolder"> {{ dict.dictionary_name }}</span>
+                    ({{ dict.get_words_count }})
+                  </td>
+                  <td class="fs-6 text-end d-flex flex-nowrap">
+                    <font-awesome-icon :icon="['fas', 'person-running']" @click="navigateToSpeedTraining(dict.id)"
+                                       title="Speed running" />&nbsp;&nbsp;&nbsp;&nbsp;
+                    <!--                <font-awesome-icon :icon="['fas', 'pen-to-square']" @click="navigateToSpellingTraining(dict.id)" />&nbsp;&nbsp;&nbsp;&nbsp;-->
+                    <font-awesome-icon :icon="['fas', 'trash-can']" @click="deleteDictionary(dict.id)"
+                                       title="Delete dictionary" />
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-          <table class="table table-borderless table-hover">
-            <tbody>
-            <tr v-for="dict in orderedDictionaries" :key="dict.id"
-                style="cursor: pointer">
-              <td class="fs-6" @click="navigateToDict(dict.id)"><span class="fw-bolder"> {{ dict.dictionary_name }}</span>
-               ({{ dict.get_words_count }})
-              </td>
-              <td class="fs-6">
-                <font-awesome-icon :icon="['fas', 'person-running']" @click="navigateToSpeedTraining(dict.id)"
-                                   title="Speed running" />&nbsp;&nbsp;&nbsp;&nbsp;
-                <!--                <font-awesome-icon :icon="['fas', 'pen-to-square']" @click="navigateToSpellingTraining(dict.id)" />&nbsp;&nbsp;&nbsp;&nbsp;-->
-                <font-awesome-icon :icon="['fas', 'trash-can']" @click="deleteDictionary(dict.id)"
-                                   title="Delete dictionary" />
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
+        </nav>
       </div>
-      <div class="col-md-9 bg-light pt-3" style="min-height: 92vh">
+      <div class="col-xl-8 bg-light pt-3" style="min-height: 92vh">
         <div>
           <router-view></router-view>
         </div>
       </div>
-
-
     </div>
 
   </div>

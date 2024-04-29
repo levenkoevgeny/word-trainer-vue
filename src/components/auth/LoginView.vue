@@ -6,13 +6,9 @@
     class="d-flex justify-content-center align-items-center container-fluid"
     style="background-color: #f5f5f5; height: 100vh"
   >
-
-   <button @click="googleLogin()">
-     Google
-   </button>
     <main class="form-signin">
       <form @submit="submitHandler">
-        <h1 class="h3 mb-3 fw-normal">Авторизуйтесь</h1>
+        <h1 class="h3 mb-3 fw-normal">Please log in</h1>
         <div class="form-floating">
           <input
             type="text"
@@ -21,7 +17,7 @@
             v-model="auth_data.username"
             required
           />
-          <label>Логин</label>
+          <label>Login</label>
         </div>
         <div class="form-floating">
           <input
@@ -31,33 +27,47 @@
             v-model="auth_data.password"
             required
           />
-          <label>Пароль</label>
+          <label>Password</label>
         </div>
-        <button class="w-100 btn btn-lg btn-primary" type="submit">Вход</button>
-        <br />
-        <br />
-        <p class="mt-5 mb-3 text-muted">&copy; Designed by Levenko Evgeny</p>
+        <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
       </form>
+      <button class="btn btn-warning mt-3" @click="googleLogin()" style="width: 100%">
+        <font-awesome-icon :icon="['fab', 'google']" />
+        Sign in with Google
+      </button>
+      <br />
+      <br />
+
+      No account? <a href="/registration">Create one</a>
+
+      <br />
+      <br />
+      <p class="mt-5 mb-3 text-muted">&copy; Designed by Levenko Evgeny</p>
+
     </main>
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex"
+
 export default {
   name: "LoginView",
   data() {
     return {
       auth_data: {
         username: "",
-        password: "",
+        password: ""
       },
+      REDIRECT_URL: process.env.VUE_APP_GOOGLE_REDIRECT_URL,
+      GOOGLE_ID: process.env.VUE_APP_GOOGLE_OAUTH2_CLIENT_ID,
+      GOOGLE_SECRET: process.env.VUE_APP_GOOGLE_OAUTH2_SECRET,
     }
   },
   computed: {
     ...mapGetters({
-      isLogInError: "auth/getIsLogInError",
-    }),
+      isLogInError: "auth/getIsLogInError"
+    })
   },
   methods: {
     submitHandler(e) {
@@ -69,10 +79,10 @@ export default {
           this.$router.replace(this.$route.query.redirect || "/")
         })
     },
-    async googleLogin(){
-      window.location.href = "https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?client_id=203187743059-nogl8fo77e3i3uk118emqgacr6jj5kra.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost%3A8080/google/&scope=email%20profile&response_type=code&state=37wkk2xQw0YGtTGk&access_type=online&code_challenge_method=S256&code_challenge=ll2Xu-WGD23WsGgtVeNddhXtAhhphCryS8x1H5pKuFU&service=lso&o2v=2&theme=mn&ddm=0&flowName=GeneralOAuthFlow"
+    async googleLogin() {
+      window.location.href = `https://accounts.google.com/o/oauth2/auth?client_id=${this.GOOGLE_ID}&redirect_uri=${this.REDIRECT_URL}&scope=profile email&response_type=code&include_granted_scopes=true&access_type=offline&state=state_parameter_passthrough_value`
     }
-  },
+  }
 }
 </script>
 
@@ -84,11 +94,13 @@ export default {
   -moz-user-select: none;
   user-select: none;
 }
+
 @media (min-width: 768px) {
   .bd-placeholder-img-lg {
     font-size: 3.5rem;
   }
 }
+
 body-signin {
   height: 100%;
   display: flex;
@@ -97,23 +109,28 @@ body-signin {
   padding-bottom: 40px;
   background-color: #f5f5f5;
 }
+
 .form-signin {
   width: 100%;
   max-width: 330px;
   padding: 15px;
   margin: auto;
 }
+
 .form-signin .checkbox {
   font-weight: 400;
 }
+
 .form-signin .form-floating:focus-within {
   z-index: 2;
 }
+
 .form-signin input[type="text"] {
   margin-bottom: -1px;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
 }
+
 .form-signin input[type="password"] {
   margin-bottom: 10px;
   border-top-left-radius: 0;

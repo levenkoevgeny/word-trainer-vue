@@ -1,6 +1,6 @@
 <template>
-  <h3>Ошибка сети</h3>
-  <a href="/">Перегрузить</a>
+  <h3>Server is not available</h3>
+  <a href="/">Reload</a>
 </template>
 
 <script>

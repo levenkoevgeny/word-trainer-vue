@@ -87,7 +87,22 @@
   </div>
   <div>
     <div>
-      <h3 class="fst-italic fs-1">{{ currentDictionary.dictionary_name }}</h3>
+      <div class="d-flex align-items-end" :class="{ 'd-none': isInputForDictUpdateVisible }">
+        <h3 class="fst-italic fs-1">{{ currentDictionary.dictionary_name }}
+          <span class="fs-5"><a href="#" @click="showInputForDictNameUpdate"><font-awesome-icon
+            :icon="['fas', 'pen-to-square']" /></a></span>
+        </h3>
+      </div>
+      <div class="mb-3 mt-2" :class="{ 'd-none': !isInputForDictUpdateVisible }">
+        <input type="text"
+               class="form-control"
+               v-model="currentDictionary.dictionary_name"
+               @keyup.enter="showInputForDictNameUpdate"
+        >
+        <div class="form-text">Press Enter after editing</div>
+      </div>
+
+
       <p class="fs-4"><span class="fs-3">{{ wordsList.count }}</span> - слов (а)</p>
     </div>
 
@@ -106,7 +121,8 @@
       </div>
       <div class="col-lg-4">
         <div class="" style="width: 100%;height: 100%">
-          <button type="button" class="btn btn-dark pb-2" style="width: 100%;height: 100%" @click="addNewWord" :disabled="isNewWordValidated">
+          <button type="button" class="btn btn-dark pb-2" style="width: 100%;height: 100%" @click="addNewWord"
+                  :disabled="isNewWordValidated">
             <span class="fw-light"><font-awesome-icon :icon="['fas', 'plus']" /></span>
           </button>
         </div>
@@ -130,13 +146,13 @@
             </div>
           </td>
           <td class="text-danger" v-if="checkedForDeleteCount > 0">
-            <nobr>
+            <span class="d-flex flex-nowrap align-items-center">
               <font-awesome-icon
                 :icon="['fas', 'trash-can']"
                 class="text-danger"
                 @click="deleteCheckedWordsHandler" />
-              <span class="fw-bolder"> ({{ checkedForDeleteCount }})</span>
-            </nobr>
+              <span class="fw-bolder">&nbsp;({{ checkedForDeleteCount }})</span>
+            </span>
           </td>
           <td v-else></td>
         </tr>
@@ -198,6 +214,7 @@ export default {
         dictionary: "",
         limit: ""
       },
+      isInputForDictUpdateVisible: false,
       currentWordForUpdate: {
         word_rus: "",
         word_eng: "",
@@ -291,8 +308,6 @@ export default {
       } finally {
       }
     },
-
-
     deleteCheckedWordsHandler() {
       this.isLoading = true
       this.isError = false
@@ -315,8 +330,6 @@ export default {
           this.isLoading = false
         })
     },
-
-
     checkAllHandler(e) {
       if (e.target.checked) {
         this.wordsList.results = this.wordsList.results.map(
@@ -345,8 +358,18 @@ export default {
         this.isLoading = false
       }
     },
+    showInputForDictNameUpdate() {
+      this.isInputForDictUpdateVisible = !this.isInputForDictUpdateVisible
+    },
     debouncedSearch: debounce(async function() {
       await this.loadData()
+    }, 500),
+    debouncedDictNameUpdate: debounce(async function() {
+      try {
+        await dictionariesAPI.updateItem(this.userToken, this.currentDictionary)
+      } catch (error){
+        this.isError = true
+      } finally {}
     }, 500),
     getFormattedDateComponent(dateTime) {
       return getFormattedDate(dateTime)
@@ -377,7 +400,7 @@ export default {
       return counter
     },
     isNewWordValidated() {
-      return this.searchForm.word_rus === '' || this.searchForm.word_eng === ''
+      return this.searchForm.word_rus === "" || this.searchForm.word_eng === ""
     }
   },
   watch:
@@ -390,6 +413,13 @@ export default {
       "searchForm.word_eng": {
         handler() {
           this.debouncedSearch()
+        }
+      },
+      "currentDictionary.dictionary_name": {
+        handler() {
+          this.debouncedDictNameUpdate()
+          // this.debouncedSearch()
+
         }
       }
     }

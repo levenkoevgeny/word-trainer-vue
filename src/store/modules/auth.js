@@ -1,5 +1,6 @@
 import { authApi } from "@/api/auth/authAPI"
 import { getLocalToken, saveLocalToken, removeLocalToken } from "@/utils"
+import axios from "axios"
 
 const state = () => ({
   token: null,
@@ -35,8 +36,8 @@ const actions = {
       let { username, password } = payload
       const response = await authApi.logInGetToken(username, password)
       const data = await response.data
-      const token = data.access
-      const refresh = data.refresh
+      const token = data.access_token
+      const refresh = data.refresh_token
       if (token) {
         saveLocalToken(token)
         commit("setToken", token)
@@ -52,6 +53,40 @@ const actions = {
       }
     }
   },
+
+
+  async actionGoogleLogIn({ commit }, payload) {
+    try {
+      const params = new URLSearchParams()
+      params.append("grant_type", "convert_token")
+      params.append("client_id", process.env.VUE_APP_OAUTH2_CLIENT_ID)
+      params.append("client_secret", process.env.VUE_APP_OAUTH2_SECRET)
+      params.append("backend", "google-oauth2")
+      params.append("token", payload)
+      params.append("scope", "")
+
+      const response = await axios.post(`${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/auth/convert-token`, params)
+      const data = await response.data
+      const token = data.access_token
+      const refresh = data.refresh_token
+      if (token) {
+        saveLocalToken(token)
+        commit("setToken", token)
+        commit("setLoggedIn", true)
+        commit("setIsLogInError", false)
+        const response = await authApi.getUserData(token)
+        const userData = await response.data
+        commit("setUserData", { ...userData })
+      }
+    } catch (error) {
+      if (error.code !== "ERR_NETWORK") {
+        commit("setIsLogInError", true)
+      }
+    }
+  },
+
+
+
 
   async actionRegistration({ commit }, payload) {
     let { username, password } = payload

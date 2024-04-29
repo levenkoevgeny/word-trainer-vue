@@ -8,7 +8,7 @@ import {
 import { ClientMainView, WordsView, ClientDefault, SpeedTrainingView, SpellingTrainerView } from "@/components/client"
 import GoogleAuth from "@/components/auth/GoogleAuth.vue"
 
-import { LoginView } from "@/components/auth"
+import { LoginView, RegistrationView } from "@/components/auth"
 import store from "@/store"
 
 
@@ -19,6 +19,12 @@ const routes = [
     path: "/login",
     name: "login",
     component: LoginView,
+    meta: { requiresAuth: false },
+  },
+  {
+    path: "/registration",
+    name: "registration",
+    component: RegistrationView,
     meta: { requiresAuth: false },
   },
   {

@@ -23,8 +23,8 @@
       <h1>Словарь пустой</h1>
     </div>
 
-    <div class="my-4">
-      <h1 v-if="randomWord" class="text-center" style="width: 100%; font-size: 70px;">{{ randomWord.word_rus }}</h1>
+    <div class="my-4" style="max-height: 50vh;height: 35vh">
+      <h1 v-if="randomWord" class="text-center mb-3" style="font-size: 40px">{{ randomWord.word_rus }}</h1>
       <h1 v-if="randomWord" class="text-center alert alert-success" ref="answer" style="width: 100%; font-size: 10px;">
         {{ randomWord.word_eng }}</h1>
     </div>
@@ -104,6 +104,7 @@ export default {
     },
     startTrain() {
       this.isTrainRunning = true
+      this.getRandomWord()
       clearInterval(this.intervalId)
       this.intervalId = setInterval(() => this.getRandomWord(), (this.maxIntervalSpeed + 1) * 1000 - this.intervalSpeed * 1000)
     },
